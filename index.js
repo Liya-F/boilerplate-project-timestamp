@@ -20,13 +20,38 @@ app.get("/", function (req, res) {
 
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+app.get("/api/:date?", function (req, res) {
+  const inputDate = req.params.date;
+  let date;
+  let unixDate;
+  let utcDate;
+  if(!inputDate){
+    date = new Date();
+    unixDate = date.getTime();
+    utcDate = date.toUTCString().replace(/(\d{2}):(\d{2}):(\d{2})/, '00:00:00');
+    res.json({ unix: unixDate, utc: unixDate});
+  }
+  // Check if the input is a valid Unix timestamp
+  if (!isNaN(inputDate) && isFinite(inputDate)) {
+    unixDate = parseInt(inputDate);
+    date = new Date(unixDate);
+  } else {
+    // If not a valid Unix timestamp, parse the input as a date string
+    date = new Date(inputDate);
+    unixDate = date.getTime();
+  }
+  if (!isNaN(date)) {
+    const formattedString = date.toUTCString().replace(/(\d{2}):(\d{2}):(\d{2})/, '00:00:00');
+    res.json({ unix: unixDate, utc: formattedString });
+  } else {
+    res.json({ error: "Invalid Date" });
+  }
 });
 
 
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
+var listener = app.listen(3000, function () {
+  console.log('Your app is listening on port 3000');
 });
+
